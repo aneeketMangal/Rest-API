@@ -1,6 +1,6 @@
 class User():
     def __init__(self, userdata:dict):
-        self.__id = "404"
+        self.__id = userdata["_id"]
         self.__username = userdata['username']
         self.__pfp = userdata['pfp']
         self.__password = userdata['password']
@@ -35,6 +35,9 @@ class User():
 
     def setValidated(self):
         self.__validated = True
+
+    def getId(self):
+        return self.__id
 
     def checkUser(self, password:str):
         return password == self.__password  

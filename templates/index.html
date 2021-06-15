@@ -1,14 +1,16 @@
 
 
 {% extends "layout.html" %}
-<!-- <div id = "tee"> -->
 
-</div>
 {% block content %}
+<div>
+  <h1>Your Feed</h1>
+</div>
 {% for post in posts %}
 
 
-<div class="shadow p-3 mb-6 bg-transparent rounded card border-success" style="max-width: 35rem;">
+<div class="shadow p-3 mb-6 bg-transparent rounded card border-success" style="max-width: 35rem;margin: auto;
+width: 50%;">
   <div>
     <div class = "mt-2"style="float:left;">
       <img src="{{ post.userImage }}" class="avatar" alt="Cinque Terre">
@@ -37,19 +39,5 @@
 
 {% endfor %}
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type=text/javascript>
-        $(function() {
-          $('a#test').on('click', function(e) {
-            e.preventDefault()
-            $.getJSON('/addpost',function(data) {
-              
-            });
-            // console.log(json.message);
-            
-            return false;
-          });
-        });
-</script>
-<a id = test class="btn btn-primary" role="button">Link</a>
+
 {% endblock %}

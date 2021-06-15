@@ -10,9 +10,9 @@ class UserDatabase():
 
     def addUser(self, username:str, password:str, pfp = "https://www.seekpng.com/png/detail/143-1435868_headshot-silhouette-person-placeholder.png"):
         userdata = {'username':username, 'pfp':pfp, 'friends': [], 'validated': False, 'password': password}
-        user = User(userdata)
-        userdata = user.getInfo()
         self.__database.userD.insert_one(userdata)
+
+
 
     def checkUserAvailability(self, username:str, email:str):
         if(self.__database.userD.find_one({'username': username})):

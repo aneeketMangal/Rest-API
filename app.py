@@ -5,9 +5,11 @@ from forms.login_form import LoginForm
 from forms.register_form import RegisterForm
 from elements.user.user import User
 # from flask.views import MethodView
-
+from datetime import datetime
 from flask_classful import FlaskView, route
 from database.user_database import UserDatabase
+from database.post_database import PostDatabase
+from backend.fetch_posts import FetchPost
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '9616543127'
@@ -22,25 +24,10 @@ app.config["APP_NAME"] = "The Rest Crest"
 mongodb_client = PyMongo(app)
 db = mongodb_client.db
 
-
-
-
-posts = [
-    {
-        'user': 'Aneeket Mangal', 
-        'userImage': 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
-        'content': 'We are rolling',
-        'date': '24.09.01',
-        'image': 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'
-    },
-    
-    
-]*3
-
-
 @app.route('/')
 @app.route('/home')
 def home():
+    posts = postFetch.getGlobalPosts()
     userData = {}
     if(app.config['CURRENT_USER']):
         userData = app.config['CURRENT_USER'].getInfo()
@@ -61,9 +48,33 @@ def register():
     return render_template('register.html', title = 'Register', form = form)
 
 
-@app.route('/create')
+
+    
+@app.route('/create', methods = ['GET', 'POST'])
 def create():
-    return render_template('create.html')
+    if(request.method == 'GET'):
+        return render_template('create.html')
+    elif(request.method == 'POST'):
+        if(app.config['CURRENT_USER']):
+            text = request.form['name']
+            userId = app.config['CURRENT_USER'].getId()
+
+            now = datetime.now()
+            post_db.addPost(userId, text, now)
+            flash('Note successfully added', 'success')
+        else:
+            flash('You need to be signed in to post.', 'danger')
+        return redirect(url_for('home'))
+
+
+
+@app.route('/logout')
+def logout():
+    app.config["CURRENT_USER"] = None
+    flash('You are successfully logged out', 'primary')
+        
+    return redirect(url_for('home'))
+
 
 @app.route('/login',  methods = ['GET', 'POST'])
 def login():
@@ -73,8 +84,7 @@ def login():
         app.config["CURRENT_USER"] = User(databaseLog['userData'])
         app.config["CURRENT_USER_NAME"] = databaseLog['userData']['username']
         app.config["CURRENT_PFP"] = databaseLog['userData']['pfp']
-        temp = app.config["CURRENT_PFP"]
-        print(temp)
+
         
         if(databaseLog['isAvailable']):
             # user_db.addUser(form.username.data, form.password.data)
@@ -85,14 +95,16 @@ def login():
 
     return render_template('login.html', title = 'Login', form = form)
 
-@app.route("/database/adduser")
+@app.route("/test")
 def addUser():
-    user_db.test()
-    return jsonify({'success':1})
+    a = postFetch.getGlobalPosts()
+    return jsonify({'success':a})
 
 
 
 
 if __name__ == '__main__':
     user_db = UserDatabase(db)
+    post_db = PostDatabase(db)
+    postFetch = FetchPost(db)
     app.run(debug = True)
